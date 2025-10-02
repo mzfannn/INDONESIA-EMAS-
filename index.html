@@ -3,95 +3,119 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>QR → Play Audio</title>
+  <title>TJKT EMAS</title>
   <style>
-    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b1220;color:#e6eef8}
-    .card{width:96%;max-width:560px;padding:22px;border-radius:12px;background:linear-gradient(180deg,#09121b,#0b1220);box-shadow:0 10px 30px rgba(0,0,0,.6);text-align:center}
-    h1{margin:0 0 8px;font-size:20px}
-    p{margin:0 0 16px;opacity:.9}
-    button.play{
-      -webkit-tap-highlight-color:transparent;
-      padding:14px 22px;border-radius:12px;border:0;background:#10b981;color:white;font-weight:700;font-size:17px;cursor:pointer;
-      box-shadow:0 10px 20px rgba(16,185,129,.12)
+    body {
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#000;
+      overflow:hidden;
+      position:relative;
     }
-    #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:999;visibility:hidden;opacity:0;transition:.15s}
-    #overlay.show{visibility:visible;opacity:1}
-    .hint{margin-top:10px;color:#cfeee6;font-size:14px;opacity:.95}
-    .small{font-size:13px;opacity:.8;margin-top:10px}
+
+    /* tombol IG */
+    #playBtn {
+      background:none;
+      border:none;
+      cursor:pointer;
+      padding:0;
+      position:absolute;
+      transition: all 0.4s ease;
+      z-index:2;
+      animation: pulse 1.5s infinite, wiggle 2s infinite;
+    }
+    #playBtn svg {
+      width:70px;
+      height:70px;
+    }
+
+    /* video jumpscare full screen */
+    #scareVideo {
+      position:fixed;
+      top:0;
+      left:0;
+      width:100vw;
+      height:100vh;
+      object-fit:cover;
+      display:none;
+      z-index:1;
+      background:#000;
+    }
+
+    @keyframes pulse {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-5deg); }
+      75% { transform: rotate(5deg); }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Halaman Audio untuk QR</h1>
-    <p>Jika tidak otomatis bunyi, ketuk tombol besar di bawah.</p>
+  <!-- tombol logo IG -->
+  <button id="playBtn" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 
+      2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm10 2a3 
+      3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h10zm-5 
+      3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 
+      0-6zm4.75-2a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 
+      0-2.5z" fill="#E1306C"/>
+    </svg>
+  </button>
 
-    <!-- audio autoplay + loop -->
-    <audio id="audio" preload="auto" loop>
-      <source src="jokowi.mp3" type="audio/mpeg">
-      Browser tidak mendukung audio tag.
-    </audio>
-
-    <div id="status" class="small">Mencoba memutar otomatis…</div>
-    <div style="margin-top:16px">
-      <button id="manual" class="play" style="display:none">Tap untuk memutar</button>
-    </div>
-
-    <div class="small" style="margin-top:14px;color:#9fb5b0">Tip: Jika mau, ganti `jokowi.mp3` dengan link langsung (https) jika audionya di CDN.</div>
-  </div>
-
-  <div id="overlay">
-    <div style="text-align:center">
-      <button id="overlayBtn" class="play">Ketuk untuk memutar suara</button>
-      <div class="hint">Browser biasanya memblokir autoplay audio. Ketuk sekali saja.</div>
-    </div>
-  </div>
+  <!-- video jumpscare -->
+  <video id="scareVideo" preload="auto">
+    <source src="w.mp4" type="video/mp4">
+    Browsermu tidak mendukung video HTML5.
+  </video>
 
   <script>
-    const audio = document.getElementById('audio');
-    const status = document.getElementById('status');
-    const manual = document.getElementById('manual');
-    const overlay = document.getElementById('overlay');
-    const overlayBtn = document.getElementById('overlayBtn');
+    const btn = document.getElementById('playBtn');
+    const video = document.getElementById('scareVideo');
+    let clickCount = 0;
 
-    async function tryPlay() {
-      try {
-        await audio.play();
-        status.textContent = 'Audio diputar otomatis ✅';
-        manual.style.display = 'none';
-        overlay.classList.remove('show');
-      } catch (err) {
-        status.textContent = 'Autoplay diblokir — tampilkan tombol.';
-        manual.style.display = 'inline-block';
-        overlay.classList.add('show');
-      }
-    }
+    btn.addEventListener('click', async () => {
+      clickCount++;
 
-    manual.addEventListener('click', async () => {
-      try {
-        await audio.play();
-        status.textContent = 'Audio diputar setelah ketukan ✅';
-        manual.style.display = 'none';
-        overlay.classList.remove('show');
-      } catch (e) {
-        status.textContent = 'Gagal memutar. Periksa izin suara pada browser.';
-      }
-    });
+      if (clickCount < 3) {
+        // tombol "lari" ke posisi random
+        const maxX = window.innerWidth - 100;
+        const maxY = window.innerHeight - 100;
+        const randX = Math.floor(Math.random() * maxX);
+        const randY = Math.floor(Math.random() * maxY);
 
-    overlayBtn.addEventListener('click', async () => {
-      try {
-        await audio.play();
-        status.textContent = 'Audio diputar setelah ketukan ✅';
-        manual.style.display = 'none';
-        overlay.classList.remove('show');
-      } catch (e) {
-        status.textContent = 'Gagal memutar setelah ketuk.';
+        btn.style.left = randX + "px";
+        btn.style.top = randY + "px";
+      } else {
+        // klik ke-3 → jumpscare
+        btn.style.display = 'none';
+        video.style.display = 'block';
+        video.currentTime = 0;
+        video.volume = 1.0;
+        video.loop = true;           // auto loop
+        video.playbackRate = 1.0;    // mulai normal
+
+        try {
+          await video.play();
+        } catch(err) {
+          console.error("Video gagal diputar:", err);
+        }
       }
     });
 
-    window.addEventListener('load', () => {
-      tryPlay();
+    // tiap kali video selesai → makin cepat
+    video.addEventListener('ended', () => {
+      video.playbackRate += 0.25; // tambah kecepatan
+      video.play(); // ulang
     });
   </script>
 </body>
 </html>
+  
