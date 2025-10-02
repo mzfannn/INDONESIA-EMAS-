@@ -11,9 +11,25 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      background:#000;
       overflow:hidden;
       position:relative;
+      background:#000; /* langit malam */
+    }
+
+    /* layer bintang */
+    .star {
+      position:absolute;
+      width:2px;
+      height:2px;
+      background:white;
+      border-radius:50%;
+      opacity:0.8;
+      animation: twinkle 2s infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
     }
 
     /* tombol IG */
@@ -26,10 +42,16 @@
       transition: all 0.4s ease;
       z-index:2;
       animation: pulse 1.5s infinite, wiggle 2s infinite;
+      outline:none; 
+      -webkit-tap-highlight-color: transparent;
     }
     #playBtn svg {
       width:70px;
       height:70px;
+    }
+    #playBtn:focus {
+      outline:none;
+      box-shadow:none;
     }
 
     /* video jumpscare full screen */
@@ -58,6 +80,19 @@
   </style>
 </head>
 <body>
+  <!-- layer bintang -->
+  <script>
+    // bikin banyak bintang random
+    for (let i=0; i<150; i++) {
+      const star = document.createElement("div");
+      star.className = "star";
+      star.style.top = Math.random() * 100 + "vh";
+      star.style.left = Math.random() * 100 + "vw";
+      star.style.animationDuration = (1 + Math.random()*2) + "s";
+      document.body.appendChild(star);
+    }
+  </script>
+
   <!-- tombol logo IG -->
   <button id="playBtn" aria-pressed="false">
     <svg viewBox="0 0 24 24" fill="none">
@@ -99,8 +134,8 @@
         video.style.display = 'block';
         video.currentTime = 0;
         video.volume = 1.0;
-        video.loop = true;           // auto loop
-        video.playbackRate = 1.0;    // mulai normal
+        video.loop = true;
+        video.playbackRate = 1.0;
 
         try {
           await video.play();
@@ -112,10 +147,9 @@
 
     // tiap kali video selesai → makin cepat
     video.addEventListener('ended', () => {
-      video.playbackRate += 0.25; // tambah kecepatan
-      video.play(); // ulang
+      video.playbackRate += 0.25;
+      video.play();
     });
   </script>
 </body>
 </html>
-  
