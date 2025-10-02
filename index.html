@@ -1,18 +1,97 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>INDONESIA EMAS</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QR → Play Audio</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b1220;color:#e6eef8}
+    .card{width:96%;max-width:560px;padding:22px;border-radius:12px;background:linear-gradient(180deg,#09121b,#0b1220);box-shadow:0 10px 30px rgba(0,0,0,.6);text-align:center}
+    h1{margin:0 0 8px;font-size:20px}
+    p{margin:0 0 16px;opacity:.9}
+    button.play{
+      -webkit-tap-highlight-color:transparent;
+      padding:14px 22px;border-radius:12px;border:0;background:#10b981;color:white;font-weight:700;font-size:17px;cursor:pointer;
+      box-shadow:0 10px 20px rgba(16,185,129,.12)
+    }
+    #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:999;visibility:hidden;opacity:0;transition:.15s}
+    #overlay.show{visibility:visible;opacity:1}
+    .hint{margin-top:10px;color:#cfeee6;font-size:14px;opacity:.95}
+    .small{font-size:13px;opacity:.8;margin-top:10px}
+  </style>
 </head>
 <body>
-  <h1>Menuju Indonesia Emas 2045</h1>
-  
-  <!-- Pemutar audio autoplay + loop -->
-  <audio autoplay loop controls>
-    <source src="jokowi.mp3" type="audio/mpeg">
-    Browser kamu tidak mendukung audio.
-  </audio>
+  <div class="card">
+    <h1>Halaman Audio untuk QR</h1>
+    <p>Jika tidak otomatis bunyi, ketuk tombol besar di bawah.</p>
 
-  <p>Musik akan terus berulang otomatis.</p>
+    <!-- audio autoplay + loop -->
+    <audio id="audio" preload="auto" loop>
+      <source src="jokowi.mp3" type="audio/mpeg">
+      Browser tidak mendukung audio tag.
+    </audio>
+
+    <div id="status" class="small">Mencoba memutar otomatis…</div>
+    <div style="margin-top:16px">
+      <button id="manual" class="play" style="display:none">Tap untuk memutar</button>
+    </div>
+
+    <div class="small" style="margin-top:14px;color:#9fb5b0">Tip: Jika mau, ganti `jokowi.mp3` dengan link langsung (https) jika audionya di CDN.</div>
+  </div>
+
+  <div id="overlay">
+    <div style="text-align:center">
+      <button id="overlayBtn" class="play">Ketuk untuk memutar suara</button>
+      <div class="hint">Browser biasanya memblokir autoplay audio. Ketuk sekali saja.</div>
+    </div>
+  </div>
+
+  <script>
+    const audio = document.getElementById('audio');
+    const status = document.getElementById('status');
+    const manual = document.getElementById('manual');
+    const overlay = document.getElementById('overlay');
+    const overlayBtn = document.getElementById('overlayBtn');
+
+    async function tryPlay() {
+      try {
+        await audio.play();
+        status.textContent = 'Audio diputar otomatis ✅';
+        manual.style.display = 'none';
+        overlay.classList.remove('show');
+      } catch (err) {
+        status.textContent = 'Autoplay diblokir — tampilkan tombol.';
+        manual.style.display = 'inline-block';
+        overlay.classList.add('show');
+      }
+    }
+
+    manual.addEventListener('click', async () => {
+      try {
+        await audio.play();
+        status.textContent = 'Audio diputar setelah ketukan ✅';
+        manual.style.display = 'none';
+        overlay.classList.remove('show');
+      } catch (e) {
+        status.textContent = 'Gagal memutar. Periksa izin suara pada browser.';
+      }
+    });
+
+    overlayBtn.addEventListener('click', async () => {
+      try {
+        await audio.play();
+        status.textContent = 'Audio diputar setelah ketukan ✅';
+        manual.style.display = 'none';
+        overlay.classList.remove('show');
+      } catch (e) {
+        status.textContent = 'Gagal memutar setelah ketuk.';
+      }
+    });
+
+    window.addEventListener('load', () => {
+      tryPlay();
+    });
+  </script>
 </body>
 </html>
